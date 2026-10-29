@@ -45,20 +45,86 @@ _COMPARISON_HTML_TEMPLATE = """
 <div class="ba-wrap" style="max-width: __WIDTH__px;">
   <img class="ba-img" src="__BEFORE_URI__">
   <img class="ba-img ba-after" id="ba-after" src="__AFTER_URI__">
-  <div class="ba-divider" id="ba-divider"></div>
+  <div class="ba-divider" id="ba-divider">
+    <div class="ba-handle">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </div>
+  </div>
   <span class="ba-tag ba-tag-left">__BEFORE_LABEL__</span>
   <span class="ba-tag ba-tag-right">__AFTER_LABEL__</span>
   <input type="range" min="0" max="100" value="50" class="ba-range" id="ba-range">
 </div>
 <style>
-  .ba-wrap { position: relative; width: 100%; margin: 0 auto; border-radius: 10px; overflow: hidden; line-height: 0; }
+  .ba-wrap { 
+    position: relative; 
+    width: 100%; 
+    margin: 0 auto; 
+    border-radius: 14px; 
+    overflow: hidden; 
+    line-height: 0; 
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
   .ba-img { display: block; width: 100%; height: auto; }
   .ba-after { position: absolute; top: 0; left: 0; clip-path: inset(0 50% 0 0); }
-  .ba-divider { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,.6); pointer-events: none; }
-  .ba-range { position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
-  .ba-tag { position: absolute; top: 10px; padding: 3px 10px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font: 500 12px sans-serif; pointer-events: none; }
-  .ba-tag-left { left: 10px; }
-  .ba-tag-right { right: 10px; }
+  .ba-divider { 
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    left: 50%; 
+    width: 3px; 
+    background: linear-gradient(180deg, #6366f1 0%, #a855f7 50%, #ec4899 100%); 
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.85); 
+    pointer-events: none; 
+  }
+  .ba-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4338ca;
+    border: 2px solid #818cf8;
+  }
+  .ba-range { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    margin: 0; 
+    opacity: 0; 
+    cursor: ew-resize; 
+  }
+  .ba-tag { 
+    position: absolute; 
+    top: 14px; 
+    padding: 5px 14px; 
+    border-radius: 999px; 
+    background: rgba(15, 23, 42, 0.78); 
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #f8fafc; 
+    font: 600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    pointer-events: none; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+  .ba-tag-left { left: 14px; }
+  .ba-tag-right { right: 14px; }
 </style>
 <script>
   const range = document.getElementById('ba-range');
