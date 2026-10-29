@@ -6,16 +6,26 @@ import streamlit.components.v1 as components
 from PIL import Image
 
 from src.colorizer import load_model
-from src.config import MAX_BATCH_FILES, MAX_IMAGE_DIMENSION, MODEL_PATH
+from src.config import MAX_BATCH_FILES, MAX_IMAGE_DIMENSION, MODEL_PATH, PROJECT_ROOT
 from src.image_utils import (
     build_comparison_html,
     build_results_zip,
     format_file_size,
     resize_if_too_large,
 )
-from src.metrics import estimate_contrast, estimate_sharpness, get_processing_device
+from src.metrics import (
+    compute_dynamic_range,
+    compute_intensity_histogram,
+    compute_rgb_histogram,
+    estimate_colorfulness,
+    estimate_contrast,
+    estimate_sharpness,
+    get_processing_device,
+)
 from src.model_downloader import ensure_model_downloaded
 from src.pipeline import run_pipeline
+
+SAMPLES_DIR = PROJECT_ROOT / "samples"
 
 st.set_page_config(
     page_title="AI Photo Restoration Studio",
@@ -106,31 +116,56 @@ tab_single, tab_batch = st.tabs(["🖼️ Single Image", "📚 Batch Processing"
 with tab_single:
 
     with st.container(border=True):
-        st.markdown("### 📤 Upload a Photo")
+        st.markdown("### 📤 Upload a Photo or Choose a Sample")
         uploaded = st.file_uploader(
             "Drag and drop or browse — JPG, PNG, or WEBP",
             type=["jpg", "jpeg", "png", "webp"],
             label_visibility="collapsed",
             key="single_uploader"
         )
+        sample_files = sorted(list(SAMPLES_DIR.glob("*.jpg")) + list(SAMPLES_DIR.glob("*.png"))) if SAMPLES_DIR.exists() else []
+        sample_options = ["-- Or choose a pre-loaded test photograph --"] + [
+            f.name.replace("_", " ").replace(".jpg", "").title() for f in sample_files
+        ]
+        chosen_sample = st.selectbox(
+            "Quick-load a pre-loaded sample photo:",
+            sample_options,
+            key="sample_selector"
+        )
+
+    image_np = None
+    original_mode = "RGB"
+    display_name = ""
+    display_size = 0
 
     if uploaded is not None:
-
         try:
             image_np, original_mode = read_upload_as_rgb(uploaded)
+            display_name = uploaded.name
+            display_size = uploaded.size
         except Exception as e:
             st.error(f"Couldn't read this file as an image: {e}")
             st.stop()
+    elif chosen_sample != "-- Or choose a pre-loaded test photograph --":
+        chosen_idx = sample_options.index(chosen_sample) - 1
+        chosen_file = sample_files[chosen_idx]
+        try:
+            raw_img = Image.open(chosen_file)
+            original_mode = raw_img.mode
+            image_np = np.array(raw_img.convert("RGB"))
+            display_name = chosen_file.name
+            display_size = chosen_file.stat().st_size
+        except Exception as e:
+            st.error(f"Couldn't load sample image: {e}")
+            st.stop()
+
+    if image_np is not None:
 
         image_np, was_resized = resize_if_too_large(image_np)
-        # image_np (RGB) is what actually gets processed from here on, so
-        # it's also the correct "before" reference for the slider below --
-        # it must match the result's dimensions exactly for the overlay to
-        # align.
 
         st.caption(
-            f"**{uploaded.name}** · {image_np.shape[1]}×{image_np.shape[0]}px · "
-            f"{format_file_size(uploaded.size)} · {original_mode} mode"
+            f"**{display_name}** · {image_np.shape[1]}×{image_np.shape[0]}px · "
+            f"{format_file_size(display_size)} · {original_mode} mode"
         )
         if was_resized:
             st.info(
@@ -169,20 +204,41 @@ with tab_single:
 
                     sharpness_after = estimate_sharpness(result)
                     contrast_after = estimate_contrast(result)
+                    colorfulness_after = estimate_colorfulness(result)
                     sharpness_delta = sharpness_after - estimate_sharpness(image_np)
                     contrast_delta = contrast_after - estimate_contrast(image_np)
+                    colorfulness_delta = colorfulness_after - estimate_colorfulness(image_np)
 
-                    metric_cols = st.columns(5)
+                    metric_cols = st.columns(6)
                     metric_cols[0].metric("Resolution", f"{result.shape[1]} × {result.shape[0]}")
                     metric_cols[1].metric("Processing Time", f"{elapsed_seconds:.2f} s")
                     metric_cols[2].metric("Sharpness*", f"{sharpness_after:.1f}", delta=f"{sharpness_delta:+.1f}")
                     metric_cols[3].metric("Contrast*", f"{contrast_after:.1f}", delta=f"{contrast_delta:+.1f}")
-                    metric_cols[4].metric("Device", get_processing_device())
+                    metric_cols[4].metric("Colorfulness*", f"{colorfulness_after:.1f}", delta=f"{colorfulness_delta:+.1f}")
+                    metric_cols[5].metric("Device", get_processing_device())
 
                     st.caption(
-                        "*Heuristic estimates (Laplacian variance for sharpness, pixel "
-                        "intensity std. dev. for contrast) — not calibrated quality scores."
+                        "*Metrics: Laplacian variance (sharpness), intensity std. dev. (contrast), "
+                        "Hasler-Süsstrunk index (colorfulness)."
                     )
+
+                    with st.expander("📊 Image Analytics & Histogram Dashboard", expanded=False):
+                        tab_lum, tab_rgb, tab_dr = st.tabs(["Luminance Distribution", "RGB Spectral Channels", "Dynamic Range & Gamut"])
+                        with tab_lum:
+                            st.caption("Grayscale luminance distribution (0=black, 255=white). Demonstrates CLAHE dynamic range expansion.")
+                            hist_before = compute_intensity_histogram(image_np, bins=32)
+                            hist_after = compute_intensity_histogram(result, bins=32)
+                            st.line_chart({"Original (Luminance)": hist_before, "Enhanced (Luminance)": hist_after})
+                        with tab_rgb:
+                            st.caption("Red, Green, and Blue frequency distribution of the colorized output image.")
+                            st.line_chart(compute_rgb_histogram(result, bins=32), color=["#FF4B4B", "#00CC96", "#1C83E1"])
+                        with tab_dr:
+                            min_orig, max_orig, span_orig = compute_dynamic_range(image_np)
+                            min_res, max_res, span_res = compute_dynamic_range(result)
+                            dr_cols = st.columns(3)
+                            dr_cols[0].metric("Dynamic Range Span", f"{span_res} / 255", delta=f"{span_res - span_orig:+d}")
+                            dr_cols[1].metric("Min Intensity (Shadows)", f"{min_res}", delta=f"{min_res - min_orig:+d}")
+                            dr_cols[2].metric("Max Intensity (Highlights)", f"{max_res}", delta=f"{max_res - max_orig:+d}")
 
                     download_name = "restored_colorized.png" if colorize_enabled else "restored.png"
                     st.download_button(

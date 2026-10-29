@@ -5,7 +5,11 @@ import numpy as np
 import pytest
 
 from src.metrics import (
+    compute_dynamic_range,
+    compute_intensity_histogram,
+    compute_rgb_histogram,
     estimate_brightness,
+    estimate_colorfulness,
     estimate_contrast,
     estimate_sharpness,
     get_processing_device,
@@ -66,3 +70,44 @@ class TestGetProcessingDevice:
         # opencv-python-headless ships without CUDA support, so this
         # should never claim CUDA is available in this project's environment
         assert get_processing_device() == "CPU"
+
+
+class TestEstimateColorfulness:
+    def test_grayscale_image_scores_zero(self, sample_image):
+        gray = cv2.cvtColor(sample_image, cv2.COLOR_RGB2GRAY)
+        assert estimate_colorfulness(gray) == 0.0
+
+    def test_flat_monochrome_scores_zero(self):
+        flat_mono = np.full((50, 50, 3), 120, dtype=np.uint8)
+        assert estimate_colorfulness(flat_mono) == 0.0
+
+    def test_vibrant_color_scores_high(self):
+        # Create an image with saturated colors
+        vibrant = np.zeros((60, 60, 3), dtype=np.uint8)
+        vibrant[:30, :30] = [255, 0, 0]      # Red
+        vibrant[:30, 30:] = [0, 255, 0]      # Green
+        vibrant[30:, :30] = [0, 0, 255]      # Blue
+        vibrant[30:, 30:] = [255, 255, 0]    # Yellow
+        assert estimate_colorfulness(vibrant) > 30.0
+
+
+class TestHistograms:
+    def test_compute_intensity_histogram_sums_to_one(self, sample_image):
+        hist = compute_intensity_histogram(sample_image, bins=32)
+        assert len(hist) == 32
+        assert sum(hist) == pytest.approx(1.0, abs=1e-4)
+
+    def test_compute_rgb_histogram_channels(self, sample_image):
+        rgb_hist = compute_rgb_histogram(sample_image, bins=32)
+        assert "Red" in rgb_hist and "Green" in rgb_hist and "Blue" in rgb_hist
+        assert len(rgb_hist["Red"]) == 32
+        assert sum(rgb_hist["Red"]) == pytest.approx(1.0, abs=1e-4)
+
+
+class TestDynamicRange:
+    def test_compute_dynamic_range(self):
+        img = np.array([[10, 50], [100, 220]], dtype=np.uint8)
+        min_v, max_v, span = compute_dynamic_range(img)
+        assert min_v == 10
+        assert max_v == 220
+        assert span == 210

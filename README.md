@@ -19,10 +19,12 @@ Every restoration stage — scratch/crease inpainting, denoising, contrast enhan
 - **Configurable restoration pipeline** — scratch/crease inpainting, denoising, CLAHE contrast enhancement, and sharpening, each independently toggleable, plus a master "Restoration" switch
 - **CNN-based colorization** — the Zhang et al. (2016) colorization network via OpenCV's `dnn` module, with the model downloaded automatically on first use
 - **Interactive before/after comparison** — a drag-to-reveal slider, not just a static side-by-side
-- **Processing metrics** — resolution, processing time, device (CPU/CUDA, honestly detected), and heuristic sharpness/contrast estimates with before→after deltas
+- **Processing metrics** — resolution, processing time, device (CPU/CUDA, honestly detected), heuristic sharpness/contrast, and Hasler-Süsstrunk colorfulness estimates with before→after deltas
+- **Interactive Histogram & Gamut Analytics Dashboard** — interactive luminance dynamic range expansion curves, RGB spectral channel frequency distributions, and intensity dynamic range spans
+- **Curated test photograph suite** — preloaded vintage portrait, damaged historical street, nature landscape, and low-contrast architecture photos for immediate practical demonstration
 - **Upload validation and metadata** — JPG/PNG/WEBP, corrupted-file handling, automatic downscaling of oversized images with a clear explanation, and a display of filename/resolution/size/mode
 - **Batch processing** — upload up to 10 images at once, processed sequentially with live progress and a combined ZIP download
-- **58 automated tests** covering the inpainting, enhancement, colorization, pipeline, image utility, and metrics modules
+- **64 automated tests** covering inpainting, enhancement, colorization, pipeline, image utility, and metrics modules
 - **CI** that runs the full test suite on every push and pull request
 
 ## Architecture
@@ -139,6 +141,12 @@ opencv-colorization-project/
 │   ├── test_pipeline.py
 │   ├── test_image_utils.py
 │   └── test_metrics.py
+│
+├── samples/
+│   ├── 01_vintage_portrait.jpg
+│   ├── 02_scratched_historical.jpg
+│   ├── 03_nature_landscape.jpg
+│   └── 04_low_contrast_architecture.jpg
 │
 ├── .github/
 │   └── workflows/
