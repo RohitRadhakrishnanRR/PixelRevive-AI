@@ -60,7 +60,7 @@ st.sidebar.caption("Choose which steps to apply before colorizing.")
 
 restoration_enabled = st.sidebar.checkbox("🛠️ Restoration", value=True)
 inpaint_enabled = st.sidebar.checkbox(
-    "🩹 Scratch & Crease Removal", value=True, disabled=not restoration_enabled
+    "🩹 Scratch & Crease Removal", value=False, disabled=not restoration_enabled
 )
 denoise_enabled = st.sidebar.checkbox(
     "🧹 Denoising", value=True, disabled=not restoration_enabled

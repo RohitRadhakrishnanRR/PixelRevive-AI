@@ -40,9 +40,17 @@ def detect_scratches(image, threshold=INPAINT_THRESHOLD, kernel_size=INPAINT_KER
 
 
 def inpaint_image(image, inpaint_radius=INPAINT_RADIUS, threshold=INPAINT_THRESHOLD):
-    """Inpaint detected physical scratches and creases using Fast Marching (Telea)."""
+    """Inpaint detected physical scratches and creases using Fast Marching (Telea).
+
+    Includes a safety guard: scratches are sparse defects (<5% of pixels).
+    If more than 5% is flagged, it is detecting texture (cobblestones/bricks)
+    rather than scratches, so inpainting aborts to protect photo quality.
+    """
     mask = detect_scratches(image, threshold=threshold)
-    if cv2.countNonZero(mask) == 0:
+    non_zero = cv2.countNonZero(mask)
+    total_pixels = image.shape[0] * image.shape[1]
+
+    if non_zero == 0 or (non_zero / float(total_pixels)) > 0.10:
         return image
     return cv2.inpaint(image, mask, inpaint_radius, cv2.INPAINT_TELEA)
 
