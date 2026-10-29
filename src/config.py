@@ -33,11 +33,6 @@ NUM_AB_CLUSTERS = 313         # quantized ab bins the model predicts over
 CLUSTER_CENTER_BIAS = 2.606   # bias term for the cluster-rebalancing layer
 SATURATION_GAMMA = 0.9        # slight saturation boost after LAB -> BGR
 
-# --- scratch & crease inpainting --------------------------------------
-INPAINT_RADIUS = 3            # neighborhood radius around inpaint pixels
-INPAINT_THRESHOLD = 30        # anomaly threshold for scratch detection
-INPAINT_KERNEL_SIZE = 5       # morphological structuring element size
-
 # --- denoising ----------------------------------------------------------
 DENOISE_H = 8                 # filter strength, luminance
 DENOISE_H_COLOR = 8           # filter strength, color channels

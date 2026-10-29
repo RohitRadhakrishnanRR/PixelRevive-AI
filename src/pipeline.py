@@ -13,7 +13,7 @@ from .colorizer import colorize
 from .enhancer import enhance_image
 
 
-def run_pipeline(image_rgb, net, inpaint=False, denoise=True, contrast=True, sharpen=True, colorize_enabled=True):
+def run_pipeline(image_rgb, net, denoise=True, contrast=True, sharpen=True, colorize_enabled=True):
     """Run the restoration + colorization pipeline on one RGB uint8 image.
 
     `net` is only used when colorize_enabled is True -- pass whatever
@@ -24,13 +24,7 @@ def run_pipeline(image_rgb, net, inpaint=False, denoise=True, contrast=True, sha
     start_time = time.perf_counter()
 
     bgr = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)
-    enhanced = enhance_image(
-        bgr,
-        inpaint=inpaint,
-        denoise=denoise,
-        contrast=contrast,
-        sharpen=sharpen
-    )
+    enhanced = enhance_image(bgr, denoise=denoise, contrast=contrast, sharpen=sharpen)
 
     if colorize_enabled:
         result = colorize(enhanced, net)

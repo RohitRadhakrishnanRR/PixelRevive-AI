@@ -1,7 +1,8 @@
-"""Classical (non-learned) image restoration: inpaint, denoise, contrast, sharpen.
+"""Classical (non-learned) image restoration: denoise, contrast, sharpen.
 
 Each stage is independently toggleable and runs in a fixed order
-(inpaint -> denoise -> contrast -> sharpen) regardless of which are enabled.
+(denoise -> contrast -> sharpen) regardless of which are enabled, matching
+the pipeline order in the project README.
 """
 
 import cv2
@@ -13,46 +14,8 @@ from .config import (
     DENOISE_H_COLOR,
     DENOISE_SEARCH_WINDOW,
     DENOISE_TEMPLATE_WINDOW,
-    INPAINT_KERNEL_SIZE,
-    INPAINT_RADIUS,
-    INPAINT_THRESHOLD,
     SHARPEN_KERNEL,
 )
-
-
-def detect_scratches(image, threshold=INPAINT_THRESHOLD, kernel_size=INPAINT_KERNEL_SIZE):
-    """Detect thin scratches, cracks, and dust specks via Top-Hat and Black-Hat morphology.
-
-    - Top-Hat isolates thin bright structures (light cracks/creases).
-    - Black-Hat isolates thin dark structures (dark scratches).
-    """
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if image.ndim == 3 else image
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
-
-    top_hat = cv2.morphologyEx(gray, cv2.MORPH_TOPHAT, kernel)
-    black_hat = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, kernel)
-
-    combined = cv2.add(top_hat, black_hat)
-    _, mask = cv2.threshold(combined, threshold, 255, cv2.THRESH_BINARY)
-
-    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    return cv2.dilate(mask, dilate_kernel, iterations=1)
-
-
-def inpaint_image(image, inpaint_radius=INPAINT_RADIUS, threshold=INPAINT_THRESHOLD):
-    """Inpaint detected physical scratches and creases using Fast Marching (Telea).
-
-    Includes a safety guard: scratches are sparse defects (<5% of pixels).
-    If more than 5% is flagged, it is detecting texture (cobblestones/bricks)
-    rather than scratches, so inpainting aborts to protect photo quality.
-    """
-    mask = detect_scratches(image, threshold=threshold)
-    non_zero = cv2.countNonZero(mask)
-    total_pixels = image.shape[0] * image.shape[1]
-
-    if non_zero == 0 or (non_zero / float(total_pixels)) > 0.10:
-        return image
-    return cv2.inpaint(image, mask, inpaint_radius, cv2.INPAINT_TELEA)
 
 
 def denoise_image(image):
@@ -93,16 +56,13 @@ def sharpen_image(image):
     )
 
 
-def enhance_image(image, inpaint=False, denoise=True, contrast=True, sharpen=True):
+def enhance_image(image, denoise=True, contrast=True, sharpen=True):
     """Run the classical restoration pipeline on a BGR uint8 image.
 
     Each stage can be independently enabled or disabled; disabled stages
     are skipped entirely rather than run with a no-op setting.
     """
     result = image
-
-    if inpaint:
-        result = inpaint_image(result)
 
     if denoise:
         result = denoise_image(result)

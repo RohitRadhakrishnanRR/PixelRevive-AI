@@ -43,8 +43,8 @@ def image_to_base64_png(image_array):
 
 _COMPARISON_HTML_TEMPLATE = """
 <div class="ba-wrap" style="max-width: __WIDTH__px;">
-  <img class="ba-img" src="__AFTER_URI__">
-  <img class="ba-img ba-before" id="ba-before" src="__BEFORE_URI__">
+  <img class="ba-img" src="__BEFORE_URI__">
+  <img class="ba-img ba-after" id="ba-after" src="__AFTER_URI__">
   <div class="ba-divider" id="ba-divider"></div>
   <span class="ba-tag ba-tag-left">__BEFORE_LABEL__</span>
   <span class="ba-tag ba-tag-right">__AFTER_LABEL__</span>
@@ -53,7 +53,7 @@ _COMPARISON_HTML_TEMPLATE = """
 <style>
   .ba-wrap { position: relative; width: 100%; margin: 0 auto; border-radius: 10px; overflow: hidden; line-height: 0; }
   .ba-img { display: block; width: 100%; height: auto; }
-  .ba-before { position: absolute; top: 0; left: 0; clip-path: inset(0 50% 0 0); }
+  .ba-after { position: absolute; top: 0; left: 0; clip-path: inset(0 50% 0 0); }
   .ba-divider { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,.6); pointer-events: none; }
   .ba-range { position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
   .ba-tag { position: absolute; top: 10px; padding: 3px 10px; border-radius: 999px; background: rgba(0,0,0,.6); color: #fff; font: 500 12px sans-serif; pointer-events: none; }
@@ -62,11 +62,11 @@ _COMPARISON_HTML_TEMPLATE = """
 </style>
 <script>
   const range = document.getElementById('ba-range');
-  const before = document.getElementById('ba-before');
+  const after = document.getElementById('ba-after');
   const divider = document.getElementById('ba-divider');
   range.addEventListener('input', function (e) {
     const v = e.target.value;
-    before.style.clipPath = 'inset(0 ' + (100 - v) + '% 0 0)';
+    after.style.clipPath = 'inset(0 ' + (100 - v) + '% 0 0)';
     divider.style.left = v + '%';
   });
 </script>
