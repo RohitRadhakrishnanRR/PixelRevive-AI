@@ -33,3 +33,11 @@ class TestRunPipeline:
         _, elapsed = run_pipeline(sample_image, net=None, colorize_enabled=False)
         assert isinstance(elapsed, float)
         assert elapsed < 30  # sane upper bound for a tiny test image
+
+    def test_pipeline_with_inpaint_enabled(self, sample_image, stub_net):
+        result, elapsed = run_pipeline(
+            sample_image, net=stub_net,
+            inpaint=True, denoise=True, contrast=True, sharpen=True, colorize_enabled=True
+        )
+        assert result.shape == sample_image.shape
+        assert elapsed >= 0

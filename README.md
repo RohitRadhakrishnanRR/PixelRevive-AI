@@ -12,17 +12,17 @@ Restore, enhance, and colorize photographs using computer vision and deep learni
 
 This application restores old, degraded, grayscale, or low-quality photographs into enhanced, colorized images. It combines classical computer vision techniques (Non-Local Means denoising, CLAHE contrast enhancement, Laplacian sharpening) with a CNN-based colorization model, running through an intuitive Streamlit interface featuring configurable processing stages, an interactive before/after comparison, and real-time processing metrics.
 
-Every restoration stage — denoising, contrast enhancement, sharpening — and colorization itself can be toggled independently, functioning as a restoration tool, a colorizer, or an integrated enhancement suite.
+Every restoration stage — scratch/crease inpainting, denoising, contrast enhancement, sharpening — and colorization itself can be toggled independently, functioning as a restoration tool, a colorizer, or an integrated enhancement suite.
 
 ## Features
 
-- **Configurable restoration pipeline** — denoising, CLAHE contrast enhancement, and sharpening, each independently toggleable, plus a master "Restoration" switch
+- **Configurable restoration pipeline** — scratch/crease inpainting, denoising, CLAHE contrast enhancement, and sharpening, each independently toggleable, plus a master "Restoration" switch
 - **CNN-based colorization** — the Zhang et al. (2016) colorization network via OpenCV's `dnn` module, with the model downloaded automatically on first use
 - **Interactive before/after comparison** — a drag-to-reveal slider, not just a static side-by-side
 - **Processing metrics** — resolution, processing time, device (CPU/CUDA, honestly detected), and heuristic sharpness/contrast estimates with before→after deltas
 - **Upload validation and metadata** — JPG/PNG/WEBP, corrupted-file handling, automatic downscaling of oversized images with a clear explanation, and a display of filename/resolution/size/mode
 - **Batch processing** — upload up to 10 images at once, processed sequentially with live progress and a combined ZIP download
-- **53 automated tests** covering the enhancement, colorization, pipeline, image utility, and metrics modules
+- **58 automated tests** covering the inpainting, enhancement, colorization, pipeline, image utility, and metrics modules
 - **CI** that runs the full test suite on every push and pull request
 
 ## Architecture
@@ -32,8 +32,9 @@ flowchart TD
     A[Upload: JPG / PNG / WEBP] --> B[Validate & Read]
     B --> C{Oversized?}
     C -->|"Yes, over 1600px"| D[Downscale, preserve aspect ratio]
-    C -->|No| E[Denoising]
-    D --> E
+    C -->|No| E0[Scratch & Crease Inpainting]
+    D --> E0
+    E0 --> E[Denoising]
     E --> F[CLAHE Contrast Enhancement]
     F --> G[Sharpening]
     G --> H[BGR to LAB Conversion]
@@ -74,6 +75,7 @@ The classical (non-learned) restoration stages, in order:
 
 | Stage | Technique | Purpose |
 |---|---|---|
+| Inpainting | Top-Hat/Black-Hat morphology + `cv2.inpaint` (Telea) | Detects and reconstructs physical scratches, cracks, and creases |
 | Denoising | `cv2.fastNlMeansDenoisingColored` | Removes sensor/scan noise while preserving edges |
 | Contrast | CLAHE on the L channel only (LAB space) | Boosts local contrast without shifting color/saturation |
 | Sharpening | Unity-gain Laplacian kernel | Restores edge definition lost to denoising, without inflating brightness |
@@ -255,7 +257,7 @@ Any host that runs standard Python + `pip install -r requirements.txt` + `stream
 ## Future Improvements
 
 1. **Faster CPU inference** — an ONNX Runtime or OpenVINO backend for the colorization network, which typically outperforms OpenCV's `dnn` module on CPU
-2. **Damage-specific restoration** — scratch and crease removal via `cv2.inpaint`, aimed specifically at physically damaged prints rather than general noise
+2. **Interactive scratch brush** — optional manual mask painting for irregular damage alongside automatic morphological detection
 3. **Reference-based quality comparison** — when a ground-truth or professionally-restored reference image is available, add real PSNR/SSIM metrics alongside (not instead of) the current heuristics
 4. **A more modern colorization model** — several post-2016 approaches produce more saturated, more plausible color; swapping the model is straightforward given the `load_model()` / `colorize(image, net)` split
 5. **Parallel batch processing** — the current batch mode processes sequentially; a bounded worker pool would speed up multi-image runs without giving up the memory limits that sequential processing makes easy to reason about
