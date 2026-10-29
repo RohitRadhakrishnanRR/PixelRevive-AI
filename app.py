@@ -1,9 +1,13 @@
+import importlib
 import io
 
 import numpy as np
 import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
+
+import src.metrics
+importlib.reload(src.metrics)
 
 from src.colorizer import load_model
 from src.config import MAX_BATCH_FILES, MAX_IMAGE_DIMENSION, MODEL_PATH, PROJECT_ROOT
