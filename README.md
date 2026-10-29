@@ -242,33 +242,3 @@ The model downloads itself the first time a visitor runs colorization (see [Mode
 ### Other hosts
 
 Any host that runs standard Python + `pip install -r requirements.txt` + `streamlit run app.py` works the same way — Render, Railway, Fly.io, a VPS, or your own machine. Model paths in `src/config.py` are resolved relative to the file itself, not the working directory, so there's nothing host-specific to configure.
-
-## Limitations
-
-- **CPU-only in typical deployment** — `opencv-python-headless` ships without CUDA support, so inference runs on CPU; a single image takes a few seconds
-- **Heuristic metrics, not calibrated scores** — sharpness and contrast use standard proxies (Laplacian variance, pixel std. dev.), not a reference-based measure like PSNR/SSIM, since there's no ground-truth image to compare against
-- **Batch limit** — capped at 10 images per batch to bound memory and processing time on a CPU-only deployment
-- **General-purpose colorization model** — the 2016 Zhang et al. network isn't fine-tuned for any particular photo era, damage type, or subject matter, so results vary
-- **Model download depends on outbound network access** to the hosting domain; the manual-placement fallback exists for restricted environments
-- **1600px processing cap** — very large images are downscaled before processing to keep CPU processing time reasonable
-
-## Future Improvements
-
-1. **Faster CPU inference** — an ONNX Runtime or OpenVINO backend for the colorization network, which typically outperforms OpenCV's `dnn` module on CPU
-2. **Damage-specific restoration** — scratch and crease removal via `cv2.inpaint`, aimed specifically at physically damaged prints rather than general noise
-3. **Reference-based quality comparison** — when a ground-truth or professionally-restored reference image is available, add real PSNR/SSIM metrics alongside (not instead of) the current heuristics
-4. **A more modern colorization model** — several post-2016 approaches produce more saturated, more plausible color; swapping the model is straightforward given the `load_model()` / `colorize(image, net)` split
-5. **Parallel batch processing** — the current batch mode processes sequentially; a bounded worker pool would speed up multi-image runs without giving up the memory limits that sequential processing makes easy to reason about
-
-## References & Citations
-
-The pretrained deep learning colorization model architecture and cluster representations are based on the work by Zhang, Isola, and Efros, *"Colorful Image Colorization,"* ECCV 2016:
-
-```bibtex
-@inproceedings{zhang2016colorful,
-  title={Colorful Image Colorization},
-  author={Zhang, Richard and Isola, Phillip and Efros, Alexei A},
-  booktitle={ECCV},
-  year={2016}
-}
-```
