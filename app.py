@@ -6,8 +6,19 @@ import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 
+import src.config
+import src.enhancer
+import src.colorizer
+import src.pipeline
 import src.metrics
+import src.image_utils
+
+importlib.reload(src.config)
+importlib.reload(src.enhancer)
+importlib.reload(src.colorizer)
+importlib.reload(src.pipeline)
 importlib.reload(src.metrics)
+importlib.reload(src.image_utils)
 
 from src.colorizer import load_model
 from src.config import MAX_BATCH_FILES, MAX_IMAGE_DIMENSION, MODEL_PATH, PROJECT_ROOT
