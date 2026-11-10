@@ -1,4 +1,5 @@
 import io
+from pathlib import Path
 
 import numpy as np
 import cv2
@@ -43,11 +44,28 @@ from src.metrics import estimate_contrast, estimate_sharpness, get_processing_de
 from src.model_downloader import ensure_model_downloaded
 from src.pipeline import run_pipeline
 
+SAMPLE_IMAGES_DIR = Path(__file__).resolve().parent / "test_images_features"
+
 st.set_page_config(
     page_title="PixelRevive AI",
     page_icon="🎨",
     layout="wide"
 )
+
+st.markdown("""
+<style>
+[data-testid="stAppViewContainer"] { background: #f7f8fc; }
+[data-testid="stHeader"] { background: transparent; }
+.block-container { max-width: 1400px; padding-top: 2rem; padding-bottom: 3rem; }
+h1 { color: #202b45; font-weight: 750; letter-spacing: -0.035em; }
+[data-testid="stVerticalBlockBorderWrapper"] { background: #fff; border-radius: 14px; }
+[data-testid="stRadio"] div[role="radiogroup"] { gap: 0.45rem; }
+[data-testid="stRadio"] div[role="radiogroup"] label {
+    background: #fff; border: 1px solid #e4e8f0; border-radius: 10px;
+    padding: 0.35rem 0.65rem;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 # PixelRevive AI
@@ -140,6 +158,31 @@ def encode_png(image_rgb):
     return buf.getvalue()
 
 
+def sample_image_upload(folder_name, key):
+    """Offer a sample from the matching feature folder as an upload-like file."""
+    sample_dir = SAMPLE_IMAGES_DIR / folder_name
+    sample_paths = sorted(
+        path for path in sample_dir.glob("*")
+        if path.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"}
+    ) if sample_dir.is_dir() else []
+    if not sample_paths:
+        return None
+
+    selected_path = st.selectbox(
+        "Or try a sample image",
+        [None, *sample_paths],
+        format_func=lambda path: "Choose a sample..." if path is None else path.stem,
+        key=key,
+    )
+    if selected_path is None:
+        return None
+
+    sample_file = io.BytesIO(selected_path.read_bytes())
+    sample_file.name = selected_path.name
+    sample_file.size = len(sample_file.getbuffer())
+    return sample_file
+
+
 # ===========================================================================
 # Single image
 # ===========================================================================
@@ -147,12 +190,14 @@ if selected_section == sections[0]:
 
     with st.container(border=True):
         st.markdown("### 📤 Upload a Photo")
-        uploaded = st.file_uploader(
+        sample_file = sample_image_upload("processing-colorization", "single_sample")
+        uploaded_file = st.file_uploader(
             "Drag and drop or browse — JPG, PNG, or WEBP",
             type=["jpg", "jpeg", "png", "webp"],
             label_visibility="collapsed",
             key="single_uploader"
         )
+        uploaded = uploaded_file if uploaded_file is not None else sample_file
 
     if uploaded is not None:
 
@@ -241,13 +286,15 @@ if selected_section == sections[1]:
 
     with st.container(border=True):
         st.markdown("### 📤 Upload Multiple Photos")
-        batch_files = st.file_uploader(
+        sample_file = sample_image_upload("processing-colorization", "batch_sample")
+        uploaded_batch = st.file_uploader(
             f"Up to {MAX_BATCH_FILES} images — JPG, PNG, or WEBP",
             type=["jpg", "jpeg", "png", "webp"],
             accept_multiple_files=True,
             label_visibility="collapsed",
             key="batch_uploader"
         )
+        batch_files = uploaded_batch if uploaded_batch else ([sample_file] if sample_file else [])
 
     if batch_files:
 
@@ -338,11 +385,13 @@ if selected_section == sections[2]:
         "you want to remove."
     )
 
-    uploaded_inpaint = st.file_uploader(
+    sample_file = sample_image_upload("scratch-object-removal", "inpaint_sample")
+    uploaded_inpaint_file = st.file_uploader(
         "Upload an image",
         type=["jpg", "jpeg", "png", "webp"],
         key="inpaint_uploader"
     )
+    uploaded_inpaint = uploaded_inpaint_file if uploaded_inpaint_file is not None else sample_file
 
     if uploaded_inpaint is not None:
 
@@ -537,11 +586,13 @@ if selected_section == sections[3]:
         "you want to keep."
     )
 
-    uploaded_background = st.file_uploader(
+    sample_file = sample_image_upload("background-removal", "background_sample")
+    uploaded_background_file = st.file_uploader(
         "Upload an image",
         type=["jpg", "jpeg", "png", "webp"],
         key="background_uploader"
     )
+    uploaded_background = uploaded_background_file if uploaded_background_file is not None else sample_file
 
     if uploaded_background is not None:
 
@@ -830,11 +881,13 @@ if selected_section == sections[4]:
         "in your photographs using different edge detection algorithms."
     )
 
-    uploaded_edge = st.file_uploader(
+    sample_file = sample_image_upload("edge-detection", "edge_sample")
+    uploaded_edge_file = st.file_uploader(
         "Upload an image",
         type=["jpg", "jpeg", "png", "webp"],
         key="edge_uploader"
     )
+    uploaded_edge = uploaded_edge_file if uploaded_edge_file is not None else sample_file
 
     if uploaded_edge is not None:
 
