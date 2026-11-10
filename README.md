@@ -13,7 +13,7 @@ PixelRevive AI is a Streamlit application for restoring, enhancing, colorizing, 
 - **Edge detection:** inspect image edges with configurable detection settings.
 - **Image handling:** JPG, PNG, and WEBP uploads, image validation, and automatic resizing of large images.
 - **Processing metrics:** view processing time, image dimensions, device information, and estimated sharpness and contrast.
-- **Sample gallery:** choose bundled sample images from each feature's matching folder to try the tools without searching for a file.
+- **Sample gallery:** choose bundled sample images in single-image processing and the dedicated removal and edge-detection tools. Batch Processing accepts user-selected uploads.
 
 The processing sidebar appears for **Single Image** and **Batch Processing**, where its enhancement and colorization controls apply.
 

@@ -48,37 +48,72 @@ SAMPLE_IMAGES_DIR = Path(__file__).resolve().parent / "test_images_features"
 
 st.set_page_config(
     page_title="PixelRevive AI",
-    page_icon="🎨",
     layout="wide"
 )
 
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] { background: #f7f8fc; }
+[data-testid="stAppViewContainer"] { background: #f5f7fb; }
 [data-testid="stHeader"] { background: transparent; }
-.block-container { max-width: 1400px; padding-top: 2rem; padding-bottom: 3rem; }
-h1 { color: #202b45; font-weight: 750; letter-spacing: -0.035em; }
-[data-testid="stVerticalBlockBorderWrapper"] { background: #fff; border-radius: 14px; }
-[data-testid="stRadio"] div[role="radiogroup"] { gap: 0.45rem; }
+.block-container { max-width: 1380px; padding-top: 2.2rem; padding-bottom: 3rem; }
+h1 { color: #18253d; font-weight: 750; letter-spacing: -0.04em; }
+h2, h3 { color: #24334e; letter-spacing: -0.02em; }
+.brand-lockup {
+    display: flex; align-items: center; gap: 1.1rem; margin: .4rem 0 1.4rem;
+    padding: 1.15rem 1.4rem; border: 1px solid #e4e9f1; border-radius: 20px;
+    background: linear-gradient(110deg, #fff 0%, #f1f5fb 100%);
+    box-shadow: 0 10px 28px rgba(29, 45, 70, .055);
+}
+.brand-sticker {
+    width: 64px; height: 64px; flex: 0 0 64px; display: grid; place-items: center;
+    border-radius: 19px; background: linear-gradient(135deg, #ffe8d7, #e9e5ff);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.8); font-size: 2rem;
+}
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: #fff; border: 1px solid #e7ebf2; border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(29, 45, 70, 0.045);
+}
+[data-testid="stRadio"] div[role="radiogroup"] { gap: 0.55rem; }
 [data-testid="stRadio"] div[role="radiogroup"] label {
-    background: #fff; border: 1px solid #e4e8f0; border-radius: 10px;
-    padding: 0.35rem 0.65rem;
+    background: #fff; border: 1px solid #e1e7f0; border-radius: 999px;
+    padding: 0.42rem 0.9rem; transition: all 120ms ease;
+}
+[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child { display: none; }
+[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+    background: #263b5b !important; border-color: #263b5b !important;
+    color: #fff !important;
+}
+[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) * {
+    color: #fff !important;
+}
+[data-testid="stRadio"] div[role="radiogroup"] label:not(:has(input:checked)):hover {
+    border-color: #8ca4c8; background: #f0f4fa;
+}
+[data-testid="stSidebar"] { background: #f0f3f8; border-right: 1px solid #e4e9f1; }
+[data-testid="stFileUploader"] section { background: #f8faff; border-radius: 12px; }
+div.stButton > button, div.stDownloadButton > button {
+    border-radius: 10px; font-weight: 600; transition: all 120ms ease;
 }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-# PixelRevive AI
-
-AI-Powered Image Restoration, Enhancement & Processing Studio
-""")
+<div class="brand-lockup">
+  <div class="brand-sticker">✨</div>
+  <div>
+    <div style="color:#60718e; font-size:.76rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase;">Image restoration studio</div>
+    <h1 style="margin:.18rem 0 .2rem;">PixelRevive AI</h1>
+    <div style="color:#65738a; font-size:1.04rem;">AI-Powered Image Restoration, Enhancement &amp; Processing Studio</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 sections = [
-    "🖼️ Single Image",
-    "📚 Batch Processing",
-    "🩹 Object & Scratch Removal",
-    "✂️ Background Removal",
-    "🔎 Edge Detection",
+    "🖼️  Single Image",
+    "🗂️  Batch Processing",
+    "🪄  Object & Scratch Removal",
+    "✂️  Background Removal",
+    "🔎  Edge Detection",
 ]
 selected_section = st.radio(
     "Choose a tool",
@@ -90,22 +125,22 @@ selected_section = st.radio(
 
 # These controls apply to the enhancement and colorization workflows only.
 if selected_section in sections[:2]:
-    st.sidebar.header("⚙️ Processing")
+    st.sidebar.header("Processing")
     st.sidebar.caption("Choose which steps to apply before colorizing.")
 
-    restoration_enabled = st.sidebar.checkbox("🛠️ Restoration", value=True)
+    restoration_enabled = st.sidebar.checkbox("Restoration", value=True)
     denoise_enabled = st.sidebar.checkbox(
-        "🧹 Denoising", value=True, disabled=not restoration_enabled
+        "Denoising", value=True, disabled=not restoration_enabled
     )
     contrast_enabled = st.sidebar.checkbox(
-        "🌗 Contrast Enhancement", value=True, disabled=not restoration_enabled
+        "Contrast Enhancement", value=True, disabled=not restoration_enabled
     )
     sharpen_enabled = st.sidebar.checkbox(
-        "✨ Sharpening", value=True, disabled=not restoration_enabled
+        "Sharpening", value=True, disabled=not restoration_enabled
     )
 
     st.sidebar.divider()
-    colorize_enabled = st.sidebar.checkbox("🎨 AI Colorization", value=True)
+    colorize_enabled = st.sidebar.checkbox("AI Colorization", value=True)
 
     denoise_flag = denoise_enabled and restoration_enabled
     contrast_flag = contrast_enabled and restoration_enabled
@@ -189,7 +224,7 @@ def sample_image_upload(folder_name, key):
 if selected_section == sections[0]:
 
     with st.container(border=True):
-        st.markdown("### 📤 Upload a Photo")
+        st.markdown("### 🖼️ Upload a Photo")
         sample_file = sample_image_upload("processing-colorization", "single_sample")
         uploaded_file = st.file_uploader(
             "Drag and drop or browse — JPG, PNG, or WEBP",
@@ -224,9 +259,9 @@ if selected_section == sections[0]:
             )
 
         with st.container(border=True):
-            st.markdown("### 📷 Preview")
+            st.markdown("### 🪄 Preview")
             st.image(image_np, use_container_width=True)
-            run = st.button("✨ Restore & Colorize", type="primary")
+            run = st.button("Restore & Colorize", type="primary")
 
         if run:
             try:
@@ -245,7 +280,7 @@ if selected_section == sections[0]:
             else:
                 with st.container(border=True):
 
-                    result_heading = "🌈 Restored & Colorized" if colorize_enabled else "🛠️ Restored"
+                    result_heading = "Restored & Colorized" if colorize_enabled else "Restored"
                     st.markdown(f"### {result_heading}")
 
                     render_before_after(image_np, result, "Original", "Result")
@@ -271,7 +306,7 @@ if selected_section == sections[0]:
 
                     download_name = "restored_colorized.png" if colorize_enabled else "restored.png"
                     st.download_button(
-                        label="📥 Download Result",
+                        label="Download Result",
                         data=encode_png(result),
                         file_name=download_name,
                         mime="image/png"
@@ -285,8 +320,7 @@ if selected_section == sections[0]:
 if selected_section == sections[1]:
 
     with st.container(border=True):
-        st.markdown("### 📤 Upload Multiple Photos")
-        sample_file = sample_image_upload("processing-colorization", "batch_sample")
+        st.markdown("### 🗂️ Upload Multiple Photos")
         uploaded_batch = st.file_uploader(
             f"Up to {MAX_BATCH_FILES} images — JPG, PNG, or WEBP",
             type=["jpg", "jpeg", "png", "webp"],
@@ -294,7 +328,7 @@ if selected_section == sections[1]:
             label_visibility="collapsed",
             key="batch_uploader"
         )
-        batch_files = uploaded_batch if uploaded_batch else ([sample_file] if sample_file else [])
+        batch_files = uploaded_batch
 
     if batch_files:
 
@@ -307,7 +341,7 @@ if selected_section == sections[1]:
             batch_files = batch_files[:MAX_BATCH_FILES]
 
         st.caption(f"{len(batch_files)} image(s) ready.")
-        process_all = st.button("✨ Process All", type="primary")
+        process_all = st.button("Process All", type="primary")
 
         if process_all:
             try:
@@ -346,7 +380,7 @@ if selected_section == sections[1]:
 
                 if succeeded:
                     st.download_button(
-                        "📥 Download All as ZIP",
+                        "Download All as ZIP",
                         data=build_results_zip([
                             (f"restored_{name}" if not name.lower().endswith(".png") else f"restored_{name[:-4]}.png", data)
                             for name, data in succeeded
@@ -378,7 +412,7 @@ if selected_section == sections[1]:
 
 if selected_section == sections[2]:
 
-    st.markdown("### 🩹 Object & Scratch Removal")
+    st.markdown("### 🪄 Object & Scratch Removal")
 
     st.write(
         "Upload an image and draw over the objects or scratches "
@@ -466,7 +500,7 @@ if selected_section == sections[2]:
 
             # Restore button
             if st.button(
-                "✨ Remove Selected Region",
+                "Remove Selected Region",
                 type="primary",
                 key="remove_object_button"
             ):
@@ -556,7 +590,7 @@ if selected_section == sections[2]:
 
                         # Download restored image
                         st.download_button(
-                            label="📥 Download Restored Image",
+                            label="Download Restored Image",
                             data=encode_png(restored),
                             file_name="object_removed.png",
                             mime="image/png",
@@ -644,7 +678,7 @@ if selected_section == sections[3]:
             )
 
             if st.button(
-                "✂️ Remove Background",
+                "Remove Background",
                 type="primary",
                 key="background_remove_button"
             ):
@@ -852,7 +886,7 @@ if selected_section == sections[3]:
                 )
 
                 st.download_button(
-                    label="📥 Download Transparent PNG",
+                    label="Download Transparent PNG",
                     data=encode_png(result),
                     file_name="background_removed.png",
                     mime="image/png",
@@ -956,7 +990,7 @@ if selected_section == sections[4]:
                 )
 
             if st.button(
-                "🔎 Detect Edges",
+                "Detect Edges",
                 type="primary",
                 key="detect_edges_button"
             ):
@@ -1023,7 +1057,7 @@ if selected_section == sections[4]:
                     )
 
                 st.download_button(
-                    label="📥 Download Edge Image",
+                    label="Download Edge Image",
                     data=encode_png(result),
                     file_name="edge_detection.png",
                     mime="image/png",
