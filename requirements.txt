@@ -3,4 +3,4 @@ opencv-python-headless==4.13.0.92
 numpy==2.2.6
 pillow==12.1.1
 pytest==9.1.1
-streamlit-drawable-canvas==0.9.3
+streamlit-drawable-canvas==0.12.0

@@ -1,4 +1,5 @@
 import io
+import inspect
 from pathlib import Path
 
 import numpy as np
@@ -8,26 +9,36 @@ import streamlit.components.v1 as components
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
 
-# streamlit-drawable-canvas 0.9.3 calls a Streamlit image helper that was
-# removed in Streamlit 1.62. Keep its existing canvas API working by adapting
-# that call to Streamlit's replacement helper.
-import streamlit.elements.image as st_image
+_CANVAS_SUPPORTS_IMAGE_DATA_OPTION = (
+    "return_image_data" in inspect.signature(st_canvas).parameters
+)
 
-if not hasattr(st_image, "image_to_url"):
-    from streamlit.elements.lib.image_utils import image_to_url
-    from streamlit.elements.lib.layout_utils import LayoutConfig
+# The newer canvas release accepts return_image_data explicitly. Keep local
+# environments on 0.9.x working while their dependencies are being upgraded.
+if not _CANVAS_SUPPORTS_IMAGE_DATA_OPTION:
+    import streamlit.elements.image as st_image
 
-    def _canvas_image_to_url(image, width, clamp, channels, output_format, image_id):
-        return image_to_url(
-            image,
-            LayoutConfig(width=width),
-            clamp,
-            channels,
-            output_format,
-            image_id,
-        )
+    if not hasattr(st_image, "image_to_url"):
+        from streamlit.elements.lib.image_utils import image_to_url
+        from streamlit.elements.lib.layout_utils import LayoutConfig
 
-    st_image.image_to_url = _canvas_image_to_url
+        def _canvas_image_to_url(image, width, clamp, channels, output_format, image_id):
+            return image_to_url(
+                image,
+                LayoutConfig(width=width),
+                clamp,
+                channels,
+                output_format,
+                image_id,
+            )
+
+        st_image.image_to_url = _canvas_image_to_url
+
+
+def draw_canvas(**kwargs):
+    if _CANVAS_SUPPORTS_IMAGE_DATA_OPTION:
+        kwargs["return_image_data"] = True
+    return st_canvas(**kwargs)
 
 from src.inpainting import remove_object
 from src.background_removal import remove_background
@@ -498,7 +509,7 @@ if selected_section == sections[2]:
             )
 
             # Drawing canvas
-            canvas_result = st_canvas(
+            canvas_result = draw_canvas(
                 fill_color="rgba(255, 0, 0, 0.0)",
                 stroke_width=brush_size,
                 stroke_color="#FF0000",
@@ -680,7 +691,7 @@ if selected_section == sections[3]:
             )
 
             # Rectangle drawing canvas
-            canvas_result = st_canvas(
+            canvas_result = draw_canvas(
                 fill_color="rgba(0, 255, 0, 0.10)",
                 stroke_width=3,
                 stroke_color="#00FF00",
@@ -725,7 +736,7 @@ if selected_section == sections[3]:
 
                     rectangles = [
                         obj for obj in objects
-                        if obj.get("type") == "rect"
+                        if str(obj.get("type", "")).lower() == "rect"
                     ]
 
                     if rectangles:
