@@ -53,46 +53,57 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] { background: #f5f7fb; }
+[data-testid="stAppViewContainer"] { background: #f4f6fb; }
 [data-testid="stHeader"] { background: transparent; }
-.block-container { max-width: 1380px; padding-top: 2.2rem; padding-bottom: 3rem; }
-h1 { color: #18253d; font-weight: 750; letter-spacing: -0.04em; }
-h2, h3 { color: #24334e; letter-spacing: -0.02em; }
+.block-container { max-width: 1320px; padding-top: 1.8rem; padding-bottom: 3rem; }
+h1, h2, h3 { color: #202d47; letter-spacing: -0.025em; }
+h1 { font-weight: 760; }
 .brand-lockup {
-    display: flex; align-items: center; gap: 1.1rem; margin: .4rem 0 1.4rem;
-    padding: 1.15rem 1.4rem; border: 1px solid #e4e9f1; border-radius: 20px;
-    background: linear-gradient(110deg, #fff 0%, #f1f5fb 100%);
-    box-shadow: 0 10px 28px rgba(29, 45, 70, .055);
+    display: flex; align-items: center; gap: 1.1rem; margin: .2rem 0 1.2rem;
+    padding: 1.15rem 1.45rem; border: 1px solid #e4e9f2; border-radius: 20px;
+    background: linear-gradient(115deg, #fff 0%, #f7f8ff 58%, #f1f5ff 100%);
+    box-shadow: 0 12px 30px rgba(30, 48, 78, .06);
 }
 .brand-sticker {
-    width: 64px; height: 64px; flex: 0 0 64px; display: grid; place-items: center;
-    border-radius: 19px; background: linear-gradient(135deg, #ffe8d7, #e9e5ff);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.8); font-size: 2rem;
+    width: 62px; height: 62px; flex: 0 0 62px; display: grid; place-items: center;
+    border-radius: 18px; background: linear-gradient(140deg, #ffead8, #e8e7ff);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.9); font-size: 1.9rem;
 }
+.section-intro {
+    display: flex; align-items: center; gap: .9rem; margin: .35rem 0 1rem;
+    padding: .9rem 1.1rem; background: #fff; border: 1px solid #e4e9f2;
+    border-radius: 15px; box-shadow: 0 5px 18px rgba(30,48,78,.035);
+}
+.section-icon {
+    width: 46px; height: 46px; flex: 0 0 46px; display: grid; place-items: center;
+    border-radius: 14px; background: #eef1ff; font-size: 1.45rem;
+}
+.section-title { color: #202d47; font-size: 1.16rem; font-weight: 700; }
+.section-description { margin-top: .12rem; color: #73809a; font-size: .9rem; }
 [data-testid="stVerticalBlockBorderWrapper"] {
-    background: #fff; border: 1px solid #e7ebf2; border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(29, 45, 70, 0.045);
+    background: #fff; border: 1px solid #e3e8f1; border-radius: 16px;
+    box-shadow: 0 7px 22px rgba(30, 48, 78, .04);
 }
-[data-testid="stRadio"] div[role="radiogroup"] { gap: 0.55rem; }
-[data-testid="stRadio"] div[role="radiogroup"] label {
-    background: #fff; border: 1px solid #e1e7f0; border-radius: 999px;
-    padding: 0.42rem 0.9rem; transition: all 120ms ease;
+[data-testid="stSidebar"] { background: #eef1f7; border-right: 1px solid #e2e7f0; }
+[data-testid="stFileUploader"] section {
+    background: #f8faff; border: 1px dashed #cbd5e5; border-radius: 13px;
 }
-[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child { display: none; }
-[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
-    background: #263b5b !important; border-color: #263b5b !important;
-    color: #fff !important;
-}
-[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) * {
-    color: #fff !important;
-}
-[data-testid="stRadio"] div[role="radiogroup"] label:not(:has(input:checked)):hover {
-    border-color: #8ca4c8; background: #f0f4fa;
-}
-[data-testid="stSidebar"] { background: #f0f3f8; border-right: 1px solid #e4e9f1; }
-[data-testid="stFileUploader"] section { background: #f8faff; border-radius: 12px; }
 div.stButton > button, div.stDownloadButton > button {
-    border-radius: 10px; font-weight: 600; transition: all 120ms ease;
+    min-height: 2.7rem; border-radius: 11px; font-weight: 650;
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+[data-testid="stBaseButton-primary"] {
+    background: #30456b !important; border-color: #30456b !important; color: #fff !important;
+}
+[data-testid="stBaseButton-primary"]:hover {
+    background: #263958 !important; border-color: #263958 !important;
+}
+div.stButton > button:hover, div.stDownloadButton > button:hover {
+    transform: translateY(-1px); box-shadow: 0 5px 14px rgba(39, 59, 91, .12);
+}
+[data-testid="stMetric"] {
+    padding: .8rem; background: #f8faff; border: 1px solid #e8edf5;
+    border-radius: 12px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -109,19 +120,44 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 sections = [
-    "🖼️  Single Image",
-    "🗂️  Batch Processing",
-    "🪄  Object & Scratch Removal",
-    "✂️  Background Removal",
-    "🔎  Edge Detection",
+    "Single Image",
+    "Batch Processing",
+    "Object & Scratch Removal",
+    "Background Removal",
+    "Edge Detection",
 ]
-selected_section = st.radio(
-    "Choose a tool",
-    sections,
-    horizontal=True,
-    label_visibility="collapsed",
-    key="main_section",
-)
+section_icons = ["🖼️", "🗂️", "🪄", "✂️", "🔎"]
+section_descriptions = [
+    "Restore, enhance, and colorize one photo.",
+    "Apply the same enhancement workflow to multiple photos.",
+    "Paint over unwanted objects or scratches to remove them.",
+    "Select a subject and create a transparent background.",
+    "Find outlines and structures with configurable edge tools.",
+]
+selected_section = st.session_state.get("main_section", sections[0])
+nav_columns = st.columns(len(sections), gap="small")
+for index, (column, section) in enumerate(zip(nav_columns, sections)):
+    with column:
+        if st.button(
+            f"{section_icons[index]}  {section}",
+            key=f"nav_{index}",
+            type="primary" if selected_section == section else "secondary",
+            use_container_width=True,
+        ):
+            st.session_state["main_section"] = section
+            st.rerun()
+
+selected_section = st.session_state.get("main_section", sections[0])
+selected_index = sections.index(selected_section)
+st.markdown(f"""
+<div class="section-intro">
+  <div class="section-icon">{section_icons[selected_index]}</div>
+  <div>
+    <div class="section-title">{selected_section}</div>
+    <div class="section-description">{section_descriptions[selected_index]}</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 # These controls apply to the enhancement and colorization workflows only.
 if selected_section in sections[:2]:
@@ -412,20 +448,16 @@ if selected_section == sections[1]:
 
 if selected_section == sections[2]:
 
-    st.markdown("### 🪄 Object & Scratch Removal")
-
-    st.write(
-        "Upload an image and draw over the objects or scratches "
-        "you want to remove."
-    )
-
-    sample_file = sample_image_upload("scratch-object-removal", "inpaint_sample")
-    uploaded_inpaint_file = st.file_uploader(
-        "Upload an image",
-        type=["jpg", "jpeg", "png", "webp"],
-        key="inpaint_uploader"
-    )
-    uploaded_inpaint = uploaded_inpaint_file if uploaded_inpaint_file is not None else sample_file
+    with st.container(border=True):
+        st.markdown("### Choose a photo")
+        st.write("Draw over objects or scratches you want to remove.")
+        sample_file = sample_image_upload("scratch-object-removal", "inpaint_sample")
+        uploaded_inpaint_file = st.file_uploader(
+            "Upload an image",
+            type=["jpg", "jpeg", "png", "webp"],
+            key="inpaint_uploader"
+        )
+        uploaded_inpaint = uploaded_inpaint_file if uploaded_inpaint_file is not None else sample_file
 
     if uploaded_inpaint is not None:
 
@@ -613,20 +645,16 @@ if selected_section == sections[2]:
 
 if selected_section == sections[3]:
 
-    st.markdown("### ✂️ Background Removal")
-
-    st.write(
-        "Upload an image and draw a rectangle around the subject "
-        "you want to keep."
-    )
-
-    sample_file = sample_image_upload("background-removal", "background_sample")
-    uploaded_background_file = st.file_uploader(
-        "Upload an image",
-        type=["jpg", "jpeg", "png", "webp"],
-        key="background_uploader"
-    )
-    uploaded_background = uploaded_background_file if uploaded_background_file is not None else sample_file
+    with st.container(border=True):
+        st.markdown("### Choose a photo")
+        st.write("Mark a rectangle around the subject you want to keep.")
+        sample_file = sample_image_upload("background-removal", "background_sample")
+        uploaded_background_file = st.file_uploader(
+            "Upload an image",
+            type=["jpg", "jpeg", "png", "webp"],
+            key="background_uploader"
+        )
+        uploaded_background = uploaded_background_file if uploaded_background_file is not None else sample_file
 
     if uploaded_background is not None:
 
@@ -908,20 +936,16 @@ if selected_section == sections[3]:
 
 if selected_section == sections[4]:
 
-    st.markdown("### 🔎 Edge Detection Studio")
-
-    st.write(
-        "Detect boundaries, shapes and important structures "
-        "in your photographs using different edge detection algorithms."
-    )
-
-    sample_file = sample_image_upload("edge-detection", "edge_sample")
-    uploaded_edge_file = st.file_uploader(
-        "Upload an image",
-        type=["jpg", "jpeg", "png", "webp"],
-        key="edge_uploader"
-    )
-    uploaded_edge = uploaded_edge_file if uploaded_edge_file is not None else sample_file
+    with st.container(border=True):
+        st.markdown("### Choose a photo")
+        st.write("Detect boundaries and important structures in your photo.")
+        sample_file = sample_image_upload("edge-detection", "edge_sample")
+        uploaded_edge_file = st.file_uploader(
+            "Upload an image",
+            type=["jpg", "jpeg", "png", "webp"],
+            key="edge_uploader"
+        )
+        uploaded_edge = uploaded_edge_file if uploaded_edge_file is not None else sample_file
 
     if uploaded_edge is not None:
 
