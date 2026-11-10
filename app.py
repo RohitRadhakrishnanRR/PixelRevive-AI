@@ -6,6 +6,28 @@ import streamlit as st
 import streamlit.components.v1 as components
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
+
+# streamlit-drawable-canvas 0.9.3 calls a Streamlit image helper that was
+# removed in Streamlit 1.62. Keep its existing canvas API working by adapting
+# that call to Streamlit's replacement helper.
+import streamlit.elements.image as st_image
+
+if not hasattr(st_image, "image_to_url"):
+    from streamlit.elements.lib.image_utils import image_to_url
+    from streamlit.elements.lib.layout_utils import LayoutConfig
+
+    def _canvas_image_to_url(image, width, clamp, channels, output_format, image_id):
+        return image_to_url(
+            image,
+            LayoutConfig(width=width),
+            clamp,
+            channels,
+            output_format,
+            image_id,
+        )
+
+    st_image.image_to_url = _canvas_image_to_url
+
 from src.inpainting import remove_object
 from src.background_removal import remove_background
 from src.edge_detection import detect_edges
@@ -357,7 +379,6 @@ with tab_inpaint:
                 height=canvas_height,
                 width=canvas_width,
                 drawing_mode="freedraw",
-                return_image_data=True,
                 key="inpaint_canvas"
             )
 
@@ -543,7 +564,6 @@ with tab_background:
                 width=canvas_width,
                 drawing_mode="rect",
                 update_streamlit=True,
-                return_image_data=True,
                 key="background_rectangle_canvas"
             )
 
