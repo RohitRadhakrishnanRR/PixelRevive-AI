@@ -44,38 +44,58 @@ from src.model_downloader import ensure_model_downloaded
 from src.pipeline import run_pipeline
 
 st.set_page_config(
-    page_title="AI Photo Restoration Studio",
+    page_title="PixelRevive AI",
     page_icon="🎨",
     layout="wide"
 )
 
 st.markdown("""
-# 🎨 AI Photo Restoration & Colorization Studio
+# PixelRevive AI
 
-Restore, enhance, and colorize photographs using computer vision and deep learning.
+AI-Powered Image Restoration, Enhancement & Processing Studio
 """)
 
-# --- Sidebar: processing controls (shared by both tabs below) -----------
-st.sidebar.header("⚙️ Processing")
-st.sidebar.caption("Choose which steps to apply before colorizing.")
-
-restoration_enabled = st.sidebar.checkbox("🛠️ Restoration", value=True)
-denoise_enabled = st.sidebar.checkbox(
-    "🧹 Denoising", value=True, disabled=not restoration_enabled
+sections = [
+    "🖼️ Single Image",
+    "📚 Batch Processing",
+    "🩹 Object & Scratch Removal",
+    "✂️ Background Removal",
+    "🔎 Edge Detection",
+]
+selected_section = st.radio(
+    "Choose a tool",
+    sections,
+    horizontal=True,
+    label_visibility="collapsed",
+    key="main_section",
 )
-contrast_enabled = st.sidebar.checkbox(
-    "🌗 Contrast Enhancement", value=True, disabled=not restoration_enabled
-)
-sharpen_enabled = st.sidebar.checkbox(
-    "✨ Sharpening", value=True, disabled=not restoration_enabled
-)
 
-st.sidebar.divider()
-colorize_enabled = st.sidebar.checkbox("🎨 AI Colorization", value=True)
+# These controls apply to the enhancement and colorization workflows only.
+if selected_section in sections[:2]:
+    st.sidebar.header("⚙️ Processing")
+    st.sidebar.caption("Choose which steps to apply before colorizing.")
 
-denoise_flag = denoise_enabled and restoration_enabled
-contrast_flag = contrast_enabled and restoration_enabled
-sharpen_flag = sharpen_enabled and restoration_enabled
+    restoration_enabled = st.sidebar.checkbox("🛠️ Restoration", value=True)
+    denoise_enabled = st.sidebar.checkbox(
+        "🧹 Denoising", value=True, disabled=not restoration_enabled
+    )
+    contrast_enabled = st.sidebar.checkbox(
+        "🌗 Contrast Enhancement", value=True, disabled=not restoration_enabled
+    )
+    sharpen_enabled = st.sidebar.checkbox(
+        "✨ Sharpening", value=True, disabled=not restoration_enabled
+    )
+
+    st.sidebar.divider()
+    colorize_enabled = st.sidebar.checkbox("🎨 AI Colorization", value=True)
+
+    denoise_flag = denoise_enabled and restoration_enabled
+    contrast_flag = contrast_enabled and restoration_enabled
+    sharpen_flag = sharpen_enabled and restoration_enabled
+else:
+    restoration_enabled = False
+    colorize_enabled = False
+    denoise_flag = contrast_flag = sharpen_flag = False
 
 
 @st.cache_resource(show_spinner="Loading colorization model…")
@@ -120,17 +140,10 @@ def encode_png(image_rgb):
     return buf.getvalue()
 
 
-tab_single, tab_batch, tab_inpaint, tab_background, tab_edges = st.tabs([
-    "🖼️ Single Image",
-    "📚 Batch Processing",
-    "🩹 Object & Scratch Removal",
-    "✂️ Background Removal",
-    "🔎 Edge Detection"
-])
 # ===========================================================================
 # Single image
 # ===========================================================================
-with tab_single:
+if selected_section == sections[0]:
 
     with st.container(border=True):
         st.markdown("### 📤 Upload a Photo")
@@ -224,7 +237,7 @@ with tab_single:
 # ===========================================================================
 # Batch processing
 # ===========================================================================
-with tab_batch:
+if selected_section == sections[1]:
 
     with st.container(border=True):
         st.markdown("### 📤 Upload Multiple Photos")
@@ -316,7 +329,7 @@ with tab_batch:
 # Object and Scratch Removal
 # ===========================================================================
 
-with tab_inpaint:
+if selected_section == sections[2]:
 
     st.markdown("### 🩹 Object & Scratch Removal")
 
@@ -515,7 +528,7 @@ with tab_inpaint:
 # Background Removal with Mouse-Based Rectangle Selection
 # ===========================================================================
 
-with tab_background:
+if selected_section == sections[3]:
 
     st.markdown("### ✂️ Background Removal")
 
@@ -808,7 +821,7 @@ with tab_background:
 # Edge Detection Studio
 # ===========================================================================
 
-with tab_edges:
+if selected_section == sections[4]:
 
     st.markdown("### 🔎 Edge Detection Studio")
 
