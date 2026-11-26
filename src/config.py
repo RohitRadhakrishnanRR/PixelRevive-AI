@@ -24,7 +24,12 @@ POINTS_PATH = MODEL_DIR / "pts_in_hull.npy"
 # below is a basic integrity guard against a truncated or corrupted
 # download, not a substitute for a real checksum.
 MODEL_URL = "https://mirror.opencv.ai/colorization_release_v2.caffemodel"
+MODEL_FALLBACK_URL = (
+    "https://huggingface.co/spaces/viveknarayan/Image_Colorization/resolve/"
+    "main/colorization_release_v2.caffemodel"
+)
 MIN_MODEL_SIZE_BYTES = 100_000_000  # real file is ~123MB
+MODEL_DOWNLOAD_TIMEOUT_SECONDS = 300
 
 # --- colorization network ----------------------------------------------
 NETWORK_INPUT_SIZE = 224      # the model expects a 224x224 L channel

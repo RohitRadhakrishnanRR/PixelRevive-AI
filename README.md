@@ -52,7 +52,7 @@ streamlit run app.py
 
 ## Colorization model
 
-Colorization uses the Zhang, Isola, and Efros colorization network through OpenCV's DNN module. On first use, PixelRevive AI downloads the approximately 123 MB model file into `model/`. The network definition and color-bin data are included in the repository. If the automatic download is unavailable, download `colorization_release_v2.caffemodel` and place it in `model/`.
+Colorization uses the Zhang, Isola, and Efros colorization network through OpenCV's DNN module. On the first colorization request, PixelRevive AI downloads the approximately 123 MB model file into `model/`. It tries the OpenCV mirror first and a Hugging Face hosted copy if the mirror is unavailable. The network definition and color-bin data are included in the repository. The weights stay out of Git because of their size; Streamlit Cloud downloads them into its app container at runtime. The download requires outbound internet access and may take a few minutes on the first request. If both sources are unavailable, download `colorization_release_v2.caffemodel` and place it in `model/` for a local run.
 
 The model predicts color channels from image lightness, so its colors are plausible estimates rather than recovery of the photograph's original colors.
 
