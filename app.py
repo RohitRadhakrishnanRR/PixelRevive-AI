@@ -64,7 +64,7 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] { background: #f4f6fb; }
+[data-testid="stAppViewContainer"] { background: var(--background-color); }
 [data-testid="stHeader"] { background: transparent; }
 .block-container { max-width: 1320px; padding-top: 1.8rem; padding-bottom: 3rem; }
 h1, h2, h3 { color: #202d47; letter-spacing: -0.025em; }
@@ -117,28 +117,26 @@ div.stButton > button:hover, div.stDownloadButton > button:hover {
     border-radius: 12px;
 }
 /* Keep the custom light palette legible when Streamlit's own theme is dark. */
-[data-theme="dark"] [data-testid="stAppViewContainer"] { background: #0e1117; }
-[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3,
-[data-theme="dark"] .section-title { color: #f1f4fa; }
-[data-theme="dark"] .brand-lockup,
-[data-theme="dark"] .section-intro,
-[data-theme="dark"] [data-testid="stVerticalBlockBorderWrapper"] {
-    color: #f1f4fa; background: #1b2029; border-color: #343b49;
+/* Use Streamlit's active theme tokens so custom UI follows its theme toggle. */
+.brand-lockup, .section-intro, [data-testid="stVerticalBlockBorderWrapper"] {
+    color: var(--text-color); background: var(--secondary-background-color);
+    border-color: var(--border-color, rgba(128, 128, 128, .25));
 }
-[data-theme="dark"] .brand-lockup > div:last-child > div,
-[data-theme="dark"] .section-description { color: #c0cad9 !important; }
-[data-theme="dark"] [data-testid="stSidebar"] {
-    color: #f1f4fa; background: #171b23; border-right-color: #343b49;
+h1, h2, h3, .section-title { color: var(--text-color); }
+.brand-lockup [style*="color"], .section-description {
+    color: var(--text-color) !important;
 }
-[data-theme="dark"] [data-testid="stFileUploader"] section,
-[data-theme="dark"] [data-testid="stMetric"] {
-    color: #f1f4fa; background: #1b2029; border-color: #343b49;
+[data-testid="stSidebar"] {
+    color: var(--text-color); background: var(--secondary-background-color);
+    border-right-color: var(--border-color, rgba(128, 128, 128, .25));
 }
-/* Streamlit action and utility icons inherit their button's foreground color. */
-[data-theme="dark"] button,
-[data-theme="dark"] [role="button"] { color: #f1f4fa; }
-[data-theme="dark"] button svg,
-[data-theme="dark"] [role="button"] svg { color: currentColor; fill: currentColor; }
+[data-testid="stFileUploader"] section, [data-testid="stMetric"] {
+    color: var(--text-color); background: var(--secondary-background-color);
+    border-color: var(--border-color, rgba(128, 128, 128, .25));
+}
+/* Keep Streamlit's monochrome action icons visible on either theme. */
+button, [role="button"] { color: var(--text-color); }
+button svg, [role="button"] svg { color: currentColor; }
 </style>
 """, unsafe_allow_html=True)
 
