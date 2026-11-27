@@ -116,6 +116,29 @@ div.stButton > button:hover, div.stDownloadButton > button:hover {
     padding: .8rem; background: #f8faff; border: 1px solid #e8edf5;
     border-radius: 12px;
 }
+/* Keep the custom light palette legible when Streamlit's own theme is dark. */
+[data-theme="dark"] [data-testid="stAppViewContainer"] { background: #0e1117; }
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3,
+[data-theme="dark"] .section-title { color: #f1f4fa; }
+[data-theme="dark"] .brand-lockup,
+[data-theme="dark"] .section-intro,
+[data-theme="dark"] [data-testid="stVerticalBlockBorderWrapper"] {
+    color: #f1f4fa; background: #1b2029; border-color: #343b49;
+}
+[data-theme="dark"] .brand-lockup > div:last-child > div,
+[data-theme="dark"] .section-description { color: #c0cad9 !important; }
+[data-theme="dark"] [data-testid="stSidebar"] {
+    color: #f1f4fa; background: #171b23; border-right-color: #343b49;
+}
+[data-theme="dark"] [data-testid="stFileUploader"] section,
+[data-theme="dark"] [data-testid="stMetric"] {
+    color: #f1f4fa; background: #1b2029; border-color: #343b49;
+}
+/* Streamlit action and utility icons inherit their button's foreground color. */
+[data-theme="dark"] button,
+[data-theme="dark"] [role="button"] { color: #f1f4fa; }
+[data-theme="dark"] button svg,
+[data-theme="dark"] [role="button"] svg { color: currentColor; fill: currentColor; }
 </style>
 """, unsafe_allow_html=True)
 
